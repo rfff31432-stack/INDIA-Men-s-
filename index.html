@@ -1,2 +1,1039 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cricket Rankings & Groups</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f2f4f5;
+      color: #333;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      background-color: #ffffff;
+      min-height: 100vh;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding-bottom: 50px;
+    }
+
+    .top-bar {
+      background-color: #0b9e78;
+      color: white;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .admin-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid white;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .nav-tabs {
+      background-color: #0b9e78;
+      display: flex;
+      justify-content: space-around;
+      padding-bottom: 10px;
+    }
+
+    .tab {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      padding-bottom: 4px;
+      user-select: none;
+    }
+
+    .tab.active {
+      color: #ffffff;
+      border-bottom: 3px solid #ffffff;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .sub-tabs-container {
+      display: flex;
+      justify-content: center;
+      background-color: #ffffff;
+      padding: 12px;
+      gap: 5px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .sub-tab {
+      border: 2px solid #0b9e78;
+      color: #0b9e78;
+      padding: 6px 20px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 2px;
+      background: white;
+      user-select: none;
+    }
+
+    .sub-tab.active {
+      background-color: #0b9e78;
+      color: white;
+    }
+
+    .sub-content {
+      display: none;
+    }
+
+    .sub-content.active {
+      display: block;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .rank-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .rank-table th {
+      color: #777;
+      text-align: left;
+      padding: 10px 6px;
+      font-weight: 600;
+      font-size: 10px;
+      border-bottom: 1px solid #eee;
+      background: #fafafa;
+    }
+
+    .rank-table td {
+      padding: 10px 6px;
+      border-bottom: 1px solid #f2f2f2;
+      color: #222;
+    }
+
+    .team-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .team-name-main {
+      font-weight: 600;
+      font-size: 12px;
+      color: #111;
+    }
+
+    .flag-img {
+      width: 20px;
+      height: 14px;
+      object-fit: cover;
+      border-radius: 2px;
+      box-shadow: 0 0 2px rgba(0,0,0,0.2);
+    }
+
+    .group-container-card {
+      margin: 12px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .group-header-title {
+      background: #2b6cb0;
+      color: white;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .delete-group-btn {
+      background: #e53e3e;
+      border: none;
+      color: white;
+      padding: 3px 8px;
+      font-size: 11px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: none;
+    }
+
+    .admin-active .delete-group-btn {
+      display: inline-block;
+    }
+
+    .series-group {
+      margin-top: 18px;
+      margin-bottom: 18px;
+      border-top: 2px solid #e0e0e0;
+      padding-top: 10px;
+    }
+
+    .series-group:first-child {
+      border-top: none;
+      margin-top: 6px;
+    }
+
+    .series-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0b9e78;
+      background: #e6f4f1;
+      padding: 6px 12px;
+      margin-bottom: 8px;
+      border-left: 4px solid #0b9e78;
+    }
+
+    .match-card {
+      background: #fff;
+      padding: 14px;
+      margin: 0 12px 8px 12px;
+      border: 1px solid #eaeaea;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .match-header { font-size: 12px; color: #777; margin-bottom: 6px; display: flex; justify-content: space-between;}
+    .match-teams { font-size: 14px; font-weight: 600; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;}
+    .match-team-wrapper { display: flex; flex-direction: column; gap: 2px; }
+    .match-team-score { font-size: 11px; font-weight: bold; color: #333; background: #edf2f7; padding: 2px 6px; border-radius: 3px; width: fit-content; }
+    .match-team-item { display: flex; align-items: center; gap: 6px; }
+    .match-toss-info { font-size: 11px; color: #3182ce; font-weight: 600; margin-bottom: 4px;}
+    .match-result-info { font-size: 12px; color: #e53e3e; font-weight: 700; background: #fff5f5; padding: 6px 10px; border-radius: 3px; margin-top: 6px; border-left: 3px solid #e53e3e; }
+    .match-venue { font-size: 11px; color: #555; margin-bottom: 4px; font-style: italic;}
+    .match-time-info { font-size: 11px; color: #c88308; font-weight: 600; margin-bottom: 4px;}
+    
+    .admin-match-controls {
+      display: none;
+      margin-top: 8px;
+      gap: 6px;
+    }
+    .admin-active .admin-match-controls {
+      display: flex;
+    }
+    .edit-match-btn, .remove-match-btn {
+      background-color: #e53e3e;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      font-size: 11px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .edit-match-btn { background-color: #3182ce; }
+
+    .admin-panel {
+      display: none;
+      background: #fff;
+      padding: 16px;
+      margin: 12px;
+      border-radius: 8px;
+      border: 2px solid #0b9e78;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .admin-panel.active { display: block; }
+    .form-group { margin-bottom: 10px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: #444; margin-bottom: 3px; }
+    .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+    .admin-btn-action { background-color: #0b9e78; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 5px; }
+    
+    .checkbox-group-container {
+      max-height: 120px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 6px;
+      border-radius: 4px;
+      background: #fafafa;
+    }
+    .checkbox-item {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container" id="appContainer">
+  
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span>&larr;</span>
+      <span>Cricket Central</span>
+    </div>
+    <button class="admin-btn" id="adminToggleBtn" type="button">Admin</button>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="tab active" data-target="matches-tab">MATCHES</div>
+    <div class="tab" data-target="rankings-tab">POINTS TABLE</div>
+    <div class="tab" data-target="groups-tab">GROUPS</div>
+  </div>
+
+  <div id="adminPanel" class="admin-panel">
+    <h3 style="color: #0b9e78; margin-bottom: 10px; font-size: 15px;">Admin Dashboard</h3>
+    <div id="loginSec">
+      <div class="form-group"><label>Password (Type: admin)</label><input type="password" id="adminPwd" placeholder="Password"></div>
+      <button class="admin-btn-action" id="loginBtn" type="button">Login</button>
+    </div>
+
+    <div id="controlSec" style="display:none;">
+      <p style="color: green; font-size: 12px; font-weight: bold; margin-bottom: 10px;">✔ Logged In Successfully</p>
+      
+      <!-- 1. CREATE GROUP -->
+      <h4 style="font-size: 13px; color: #2b6cb0; margin-bottom: 6px;">📂 1. Create Tournament Group</h4>
+      <div class="form-group">
+        <label>Format</label>
+        <select id="groupFormatSelect">
+          <option value="test">Test (WTC)</option>
+          <option value="odi">ODI</option>
+          <option value="t20">T20I</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Group Name</label><input type="text" id="groupNameInput" placeholder="Group A"></div>
+      <div class="form-group">
+        <label>Select Teams for Group</label>
+        <div class="checkbox-group-container" id="groupTeamsCheckboxes"></div>
+      </div>
+      <button class="admin-btn-action" style="background-color: #2b6cb0;" id="createGroupBtn" type="button">Create Group</button>
+
+      <hr style="margin: 14px 0; border:0; border-top:1px solid #ddd;">
+
+      <!-- 2. ADD / UPDATE MATCH SCHEDULE -->
+      <h4 style="font-size: 13px; color: #333; margin-bottom: 6px;" id="matchFormTitle">📅 2. Add Match Schedule</h4>
+      <input type="hidden" id="editMatchId" value="">
+      <div class="form-group"><label>Match Format</label><input type="text" id="mFormat" placeholder="1st ODI"></div>
+      <div class="form-group"><label>Series Name</label><input type="text" id="mSeries" placeholder="India Tour of Australia"></div>
+      <div class="form-group"><label>Team 1 Name</label><input type="text" id="mTeam1" placeholder="India"></div>
+      <div class="form-group"><label>Team 2 Name</label><input type="text" id="mTeam2" placeholder="Australia"></div>
+      <div class="form-group"><label>Team 1 Score</label><input type="text" id="mScore1" placeholder="285/6 (50)"></div>
+      <div class="form-group"><label>Team 2 Score</label><input type="text" id="mScore2" placeholder="250/10 (45.2)"></div>
+      <div class="form-group"><label>Toss Winner</label><input type="text" id="mToss" placeholder="Australia won the toss & elected to bat"></div>
+      <div class="form-group"><label>Match Result Statement</label><input type="text" id="mResult" placeholder="India won by 35 runs"></div>
+      <div class="form-group"><label>Venue</label><input type="text" id="mVenue" placeholder="Wankhede Stadium"></div>
+      <div class="form-group"><label>Match Date</label><input type="text" id="mDate" placeholder="22 Nov 2026"></div>
+      <div class="form-group"><label>Match Time</label><input type="text" id="mTime" placeholder="02:30 PM IST"></div>
+      <button class="admin-btn-action" id="addMatchBtn" type="button">Save Match</button>
+
+      <hr style="margin: 14px 0; border:0; border-top:1px solid #ddd;">
+
+      <!-- 3. GLOBAL RANKINGS UPDATE -->
+      <h4 style="font-size: 13px; color: #805ad5; margin-bottom: 6px;">⚡ 3. Update Global Rankings (ICC Formula)</h4>
+      <div class="form-group">
+        <label>Format</label>
+        <select id="globalFormatSelect">
+          <option value="test">Test (WTC)</option>
+          <option value="odi">ODI</option>
+          <option value="t20">T20I</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Team 1</label><select id="globalTeam1Select"></select></div>
+      <div class="form-group"><label>Team 2</label><select id="globalTeam2Select"></select></div>
+      <div class="form-group"><label>Match Result</label>
+        <select id="globalWinnerSelect">
+          <option value="team1">Team 1 Wins</option>
+          <option value="team2">Team 2 Wins</option>
+          <option value="draw">Draw / Tie</option>
+          <option value="nr">No Result / Abandoned</option>
+        </select>
+      </div>
+      <button class="admin-btn-action" style="background-color: #805ad5;" id="applyGlobalUpdateBtn" type="button">Update Global Table</button>
+
+      <hr style="margin: 14px 0; border:0; border-top:1px solid #ddd;">
+
+      <!-- 4. CUSTOM GROUP UPDATE -->
+      <h4 style="font-size: 13px; color: #dd6b20; margin-bottom: 6px;">🏆 4. Update Custom Group Points Table</h4>
+      <div class="form-group">
+        <label>Select Custom Group</label>
+        <select id="adminGroupSelect"></select>
+      </div>
+      <div class="form-group"><label>Team 1</label><select id="groupTeam1Select"></select></div>
+      <div class="form-group"><label>Team 2</label><select id="groupTeam2Select"></select></div>
+      <div class="form-group"><label>Match Result</label>
+        <select id="groupWinnerSelect">
+          <option value="team1">Team 1 Wins</option>
+          <option value="team2">Team 2 Wins</option>
+          <option value="draw">Draw / Tie</option>
+          <option value="nr">No Result / Abandoned</option>
+        </select>
+      </div>
+      <button class="admin-btn-action" style="background-color: #dd6b20;" id="applyGroupUpdateBtn" type="button">Update Group Table</button>
+    </div>
+  </div>
+
+  <div id="matches-tab" class="tab-content active">
+    <div id="matchListContainer"></div>
+  </div>
+
+  <div id="rankings-tab" class="tab-content">
+    <div class="sub-tabs-container">
+      <button class="sub-tab active" data-sub="test-content" type="button">TEST (WTC)</button>
+      <button class="sub-tab" data-sub="odi-content" type="button">ODI</button>
+      <button class="sub-tab" data-sub="t20-content" type="button">T20I</button>
+    </div>
+
+    <!-- TEST GLOBAL TABLE -->
+    <div id="test-content" class="sub-content active">
+      <div class="table-responsive">
+        <table class="rank-table">
+          <thead><tr><th>POS</th><th>TEAM</th><th style="text-align:right;">P</th><th style="text-align:right;">W</th><th style="text-align:right;">L</th><th style="text-align:right;">D</th><th style="text-align:right;">PTS</th><th style="text-align:right;">PCT</th></tr></thead>
+          <tbody id="testTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ODI GLOBAL TABLE -->
+    <div id="odi-content" class="sub-content">
+      <div class="table-responsive">
+        <table class="rank-table">
+          <thead><tr><th>POS</th><th>TEAM</th><th style="text-align:right;">MATCHES</th><th style="text-align:right;">POINTS</th><th style="text-align:right;">RATING</th></tr></thead>
+          <tbody id="odiTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- T20I GLOBAL TABLE -->
+    <div id="t20-content" class="sub-content">
+      <div class="table-responsive">
+        <table class="rank-table">
+          <thead><tr><th>POS</th><th>TEAM</th><th style="text-align:right;">MATCHES</th><th style="text-align:right;">POINTS</th><th style="text-align:right;">RATING</th></tr></thead>
+          <tbody id="t20Tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="groups-tab" class="tab-content">
+    <div class="sub-tabs-container">
+      <button class="sub-tab active" data-sub="group-test-content" type="button">TEST</button>
+      <button class="sub-tab" data-sub="group-odi-content" type="button">ODI</button>
+      <button class="sub-tab" data-sub="group-t20-content" type="button">T20</button>
+    </div>
+
+    <div id="group-test-content" class="sub-content active">
+      <div id="groupTestContainer"></div>
+    </div>
+    <div id="group-odi-content" class="sub-content">
+      <div id="groupOdiContainer"></div>
+    </div>
+    <div id="group-t20-content" class="sub-content">
+      <div id="groupT20Container"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function getTeamFlagUrl(teamName) {
+    let name = teamName.toLowerCase().trim();
+    if(name.includes('india')) return 'https://flagcdn.com/w40/in.png';
+    if(name.includes('australia')) return 'https://flagcdn.com/w40/au.png';
+    if(name.includes('pakistan')) return 'https://flagcdn.com/w40/pk.png';
+    if(name.includes('south africa') || name.includes('sa')) return 'https://flagcdn.com/w40/za.png';
+    if(name.includes('england')) return 'https://flagcdn.com/w40/gb-eng.png';
+    if(name.includes('new zealand') || name.includes('nz')) return 'https://flagcdn.com/w40/nz.png';
+    if(name.includes('sri lanka') || name.includes('sl')) return 'https://flagcdn.com/w40/lk.png';
+    if(name.includes('bangladesh') || name.includes('ban')) return 'https://flagcdn.com/w40/bd.png';
+    if(name.includes('afghanistan') || name.includes('afg')) return 'https://flagcdn.com/w40/af.png';
+    if(name.includes('west indies') || name.includes('wi')) return 'https://flagcdn.com/w40/jm.png';
+    if(name.includes('ireland')) return 'https://flagcdn.com/w40/ie.png';
+    if(name.includes('zimbabwe')) return 'https://flagcdn.com/w40/zw.png';
+    if(name.includes('netherlands')) return 'https://flagcdn.com/w40/nl.png';
+    if(name.includes('scotland')) return 'https://flagcdn.com/w40/sc.png';
+    if(name.includes('nepal')) return 'https://flagcdn.com/w40/np.png';
+    if(name.includes('uae')) return 'https://flagcdn.com/w40/ae.png';
+    if(name.includes('oman')) return 'https://flagcdn.com/w40/om.png';
+    if(name.includes('namibia')) return 'https://flagcdn.com/w40/na.png';
+    if(name.includes('usa')) return 'https://flagcdn.com/w40/us.png';
+    if(name.includes('papua new guinea') || name.includes('png')) return 'https://flagcdn.com/w40/pg.png';
+    if(name.includes('uganda')) return 'https://flagcdn.com/w40/ug.png';
+    if(name.includes('canada')) return 'https://flagcdn.com/w40/ca.png';
+    if(name.includes('hong kong') || name.includes('hk')) return 'https://flagcdn.com/w40/hk.png';
+    return 'https://flagcdn.com/w40/un.png';
   }
-    if (!
+
+  // WTC 2025-2027 Test Data updated from your image
+  let testTeams = JSON.parse(localStorage.getItem('cc_testTeams')) || [
+    { name: "Australia", pld: 8, w: 7, l: 1, d: 0, pts: 84 },
+    { name: "South Africa", pld: 4, w: 3, l: 1, d: 0, pts: 36 },
+    { name: "New Zealand", pld: 6, w: 4, l: 2, d: 0, pts: 52 },
+    { name: "Bangladesh", pld: 4, w: 2, l: 2, d: 0, pts: 28 },
+    { name: "India", pld: 6, w: 3, l: 3, d: 0, pts: 36 },
+    { name: "Sri Lanka", pld: 4, w: 1, l: 3, d: 0, pts: 20 },
+    { name: "England", pld: 14, w: 3, l: 9, d: 2, pts: 40 },
+    { name: "West Indies", pld: 11, w: 1, l: 10, d: 0, pts: 18 },
+    { name: "Pakistan", pld: 4, w: 0, l: 4, d: 0, pts: 4 }
+  ];
+
+  let odiTeams = JSON.parse(localStorage.getItem('cc_odiTeams')) || [
+    { name: "India", pld: 38, pts: 4420, rating: 116 },
+    { name: "Australia", pld: 35, pts: 3950, rating: 113 },
+    { name: "Pakistan", pld: 32, pts: 3390, rating: 106 },
+    { name: "South Africa", pld: 29, pts: 3045, rating: 105 },
+    { name: "New Zealand", pld: 33, pts: 3399, rating: 103 },
+    { name: "Sri Lanka", pld: 39, pts: 3755, rating: 96 },
+    { name: "England", pld: 30, pts: 2820, rating: 94 },
+    { name: "Bangladesh", pld: 37, pts: 3108, rating: 84 },
+    { name: "Afghanistan", pld: 28, pts: 2324, rating: 83 },
+    { name: "West Indies", pld: 31, pts: 2418, rating: 78 },
+    { name: "Ireland", pld: 27, pts: 1350, rating: 50 },
+    { name: "Zimbabwe", pld: 25, pts: 1125, rating: 45 },
+    { name: "Scotland", pld: 20, pts: 860, rating: 43 },
+    { name: "Netherlands", pld: 22, pts: 902, rating: 41 },
+    { name: "Namibia", pld: 18, pts: 612, rating: 34 },
+    { name: "USA", pld: 21, pts: 672, rating: 32 },
+    { name: "Nepal", pld: 24, pts: 720, rating: 30 },
+    { name: "UAE", pld: 19, pts: 513, rating: 27 }
+  ];
+
+  // T20I Teams updated with all 17 teams from your screenshots
+  let t20Teams = JSON.parse(localStorage.getItem('cc_t20Teams')) || [
+    { name: "India", pld: 61, pts: 16366, rating: 268 },
+    { name: "England", pld: 38, pts: 10186, rating: 268 },
+    { name: "Australia", pld: 38, pts: 9868, rating: 260 },
+    { name: "New Zealand", pld: 50, pts: 12348, rating: 247 },
+    { name: "South Africa", pld: 48, pts: 11717, rating: 244 },
+    { name: "Pakistan", pld: 57, pts: 13679, rating: 240 },
+    { name: "West Indies", pld: 56, pts: 13079, rating: 234 },
+    { name: "Bangladesh", pld: 53, pts: 11860, rating: 224 },
+    { name: "Sri Lanka", pld: 44, pts: 9703, rating: 221 },
+    { name: "Afghanistan", pld: 36, pts: 7935, rating: 220 },
+    { name: "Ireland", pld: 29, pts: 5942, rating: 205 },
+    { name: "Zimbabwe", pld: 54, pts: 10875, rating: 201 },
+    { name: "UAE", pld: 20, pts: 3650, rating: 183 }, // Replaced USA with UAE
+    { name: "Netherlands", pld: 24, pts: 4311, rating: 180 },
+    { name: "Nepal", pld: 43, pts: 7699, rating: 179 },
+    { name: "Scotland", pld: 23, pts: 4116, rating: 179 },
+    { name: "Hong Kong", pld: 37, pts: 6616, rating: 179 } // Replaced Namibia with Hong Kong
+  ];
+
+  let matchesList = JSON.parse(localStorage.getItem('cc_matchesList')) || [];
+  let tournamentGroups = JSON.parse(localStorage.getItem('cc_tournamentGroups')) || [];
+
+  function saveData() {
+    localStorage.setItem('cc_testTeams', JSON.stringify(testTeams));
+    localStorage.setItem('cc_odiTeams', JSON.stringify(odiTeams));
+    localStorage.setItem('cc_t20Teams', JSON.stringify(t20Teams));
+    localStorage.setItem('cc_matchesList', JSON.stringify(matchesList));
+    localStorage.setItem('cc_tournamentGroups', JSON.stringify(tournamentGroups));
+  }
+
+  function renderTables() {
+    testTeams.sort((a, b) => {
+      let pctA = a.pld > 0 ? (a.pts / (a.pld * 12)) * 100 : 0;
+      let pctB = b.pld > 0 ? (b.pts / (b.pld * 12)) * 100 : 0;
+      return pctB - pctA;
+    });
+
+    let testHtml = '';
+    testTeams.forEach((item, index) => {
+      let pct = item.pld > 0 ? ((item.pts / (item.pld * 12)) * 100).toFixed(2) : "0.00";
+      testHtml += `<tr><td>${index + 1}</td><td><div class="team-info"><img class="flag-img" src="${getTeamFlagUrl(item.name)}"><div class="team-name-main">${item.name}</div></div></td><td style="text-align:right;">${item.pld}</td><td style="text-align:right;">${item.w}</td><td style="text-align:right;">${item.l}</td><td style="text-align:right;">${item.d}</td><td style="text-align:right;">${item.pts}</td><td style="text-align:right; font-weight:600;">${pct}%</td></tr>`;
+    });
+    document.getElementById('testTbody').innerHTML = testHtml;
+
+    odiTeams.sort((a, b) => b.rating - a.rating);
+    let odiHtml = '';
+    odiTeams.forEach((item, index) => {
+      odiHtml += `<tr><td>${index + 1}</td><td><div class="team-info"><img class="flag-img" src="${getTeamFlagUrl(item.name)}"><div class="team-name-main">${item.name}</div></div></td><td style="text-align:right;">${item.pld}</td><td style="text-align:right;">${item.pts}</td><td style="text-align:right; font-weight:600;">${Math.round(item.rating)}</td></tr>`;
+    });
+    document.getElementById('odiTbody').innerHTML = odiHtml;
+
+    t20Teams.sort((a, b) => b.rating - a.rating);
+    let t20Html = '';
+    t20Teams.forEach((item, index) => {
+      t20Html += `<tr><td>${index + 1}</td><td><div class="team-info"><img class="flag-img" src="${getTeamFlagUrl(item.name)}"><div class="team-name-main">${item.name}</div></div></td><td style="text-align:right;">${item.pld}</td><td style="text-align:right;">${item.pts}</td><td style="text-align:right; font-weight:600;">${Math.round(item.rating)}</td></tr>`;
+    });
+    document.getElementById('t20Tbody').innerHTML = t20Html;
+
+    saveData();
+    updateAdminDropdowns();
+    renderGroups();
+  }
+
+  function renderGroups() {
+    let testGroupHtml = '';
+    let odiGroupHtml = '';
+    let t20GroupHtml = '';
+
+    tournamentGroups.forEach((group, gIndex) => {
+      let isTest = (group.format === 'test');
+      
+      group.teams.sort((a, b) => {
+        if(isTest) {
+          let pctA = a.pld > 0 ? (a.pts / (a.pld * 12)) * 100 : 0;
+          let pctB = b.pld > 0 ? (b.pts / (b.pld * 12)) * 100 : 0;
+          if(pctB !== pctA) return pctB - pctA;
+          return b.nrr - a.nrr;
+        } else {
+          if(b.pts !== a.pts) return b.pts - a.pts;
+          return b.nrr - a.nrr;
+        }
+      });
+
+      let rows = '';
+      group.teams.forEach((tObj, tIdx) => {
+        if(isTest) {
+          let pct = tObj.pld > 0 ? ((tObj.pts / (tObj.pld * 12)) * 100).toFixed(1) : "0.0";
+          rows += `<tr><td>${tIdx + 1}</td><td><div class="team-info"><img class="flag-img" src="${getTeamFlagUrl(tObj.name)}"><div class="team-name-main">${tObj.name}</div></div></td><td style="text-align:right;">${tObj.pld}</td><td style="text-align:right;">${tObj.w}</td><td style="text-align:right;">${tObj.l}</td><td style="text-align:right;">${tObj.d}</td><td style="text-align:right;">${tObj.pts}</td><td style="text-align:right; font-weight:600;">${pct}%</td></tr>`;
+        } else {
+          let nrrStr = tObj.nrr >= 0 ? `+${Number(tObj.nrr).toFixed(3)}` : Number(tObj.nrr).toFixed(3);
+          rows += `<tr><td>${tIdx + 1}</td><td><div class="team-info"><img class="flag-img" src="${getTeamFlagUrl(tObj.name)}"><div class="team-name-main">${tObj.name}</div></div></td><td style="text-align:right;">${tObj.pld}</td><td style="text-align:right;">${tObj.w}</td><td style="text-align:right;">${tObj.l}</td><td style="text-align:right;">${tObj.t}</td><td style="text-align:right;">${tObj.nr}</td><td style="text-align:right; font-weight:600;">${tObj.pts}</td><td style="text-align:right;">${nrrStr}</td></tr>`;
+        }
+      });
+
+      let headerCols = isTest ? 
+        `<tr><th>POS</th><th>TEAM</th><th style="text-align:right;">P</th><th style="text-align:right;">W</th><th style="text-align:right;">L</th><th style="text-align:right;">D</th><th style="text-align:right;">PTS</th><th style="text-align:right;">PCT</th></tr>` :
+        `<tr><th>POS</th><th>TEAM</th><th style="text-align:right;">P</th><th style="text-align:right;">W</th><th style="text-align:right;">L</th><th style="text-align:right;">T</th><th style="text-align:right;">NR</th><th style="text-align:right;">PTS</th><th style="text-align:right;">NRR</th></tr>`;
+
+      let cardHtml = `<div class="group-container-card">
+        <div class="group-header-title">
+          <span>${group.name} (${group.format.toUpperCase()})</span>
+          <button class="delete-group-btn" onclick="deleteGroup(${gIndex})">Delete</button>
+        </div>
+        <div class="table-responsive">
+          <table class="rank-table">
+            <thead>${headerCols}</thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+
+      if(group.format === 'test') testGroupHtml += cardHtml;
+      else if(group.format === 'odi') odiGroupHtml += cardHtml;
+      else if(group.format === 't20') t20GroupHtml += cardHtml;
+    });
+
+    document.getElementById('groupTestContainer').innerHTML = testGroupHtml || '<p style="text-align:center; padding:15px; color:#777; font-size:13px;">No Test Groups created.</p>';
+    document.getElementById('groupOdiContainer').innerHTML = odiGroupHtml || '<p style="text-align:center; padding:15px; color:#777; font-size:13px;">No ODI Groups created.</p>';
+    document.getElementById('groupT20Container').innerHTML = t20GroupHtml || '<p style="text-align:center; padding:15px; color:#777; font-size:13px;">No T20I Groups created.</p>';
+  }
+
+  window.deleteGroup = function(index) {
+    if(confirm('Are you sure you want to delete this group?')) {
+      tournamentGroups.splice(index, 1);
+      saveData();
+      renderGroups();
+      updateAdminDropdowns();
+    }
+  }
+
+  function renderMatches() {
+    let container = document.getElementById('matchListContainer');
+    if (matchesList.length === 0) {
+      container.innerHTML = '<p style="text-align:center; padding:20px; color:#777;">No matches scheduled.</p>';
+      return;
+    }
+
+    let groups = {};
+    matchesList.forEach(m => {
+      if (!groups[m.series]) groups[m.series] = [];
+      groups[m.series].push(m);
+    });
+
+    let html = '';
+    for (let series in groups) {
+      html += `<div class="series-group"><div class="series-title">${series}</div>`;
+      groups[series].forEach(m => {
+        let score1Html = m.score1 ? `<div class="match-team-score">${m.score1}</div>` : '';
+        let score2Html = m.score2 ? `<div class="match-team-score">${m.score2}</div>` : '';
+        
+        let subInfoBlock = '';
+        if (m.result) {
+          subInfoBlock = `<div class="match-result-info">🔴 ${m.result}</div>`;
+        } else if (m.toss) {
+          subInfoBlock = `<div class="match-toss-info">🪙 ${m.toss}</div>`;
+        }
+
+        html += `<div class="match-card">
+          <div class="match-header"><span>${m.format}</span><span>${m.date}</span></div>
+          <div class="match-teams">
+            <div class="match-team-wrapper">
+              ${score1Html}
+              <div class="match-team-item"><img class="flag-img" src="${getTeamFlagUrl(m.t1)}"><span>${m.t1}</span></div>
+            </div>
+            <span style="font-size:12px; color:#777;">vs</span>
+            <div class="match-team-wrapper" style="align-items: flex-end;">
+              ${score2Html}
+              <div class="match-team-item"><span>${m.t2}</span><img class="flag-img" src="${getTeamFlagUrl(m.t2)}"></div>
+            </div>
+          </div>
+          <div class="match-time-info">🕒 ${m.time}</div>
+          <div class="match-venue">📍 ${m.venue}</div>
+          ${subInfoBlock}
+          <div class="admin-match-controls">
+            <button class="edit-match-btn" onclick="editMatch(${m.id})">Edit Match</button>
+            <button class="remove-match-btn" onclick="deleteMatch(${m.id})">Delete</button>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+    container.innerHTML = html;
+  }
+
+  function updateAdminDropdowns() {
+    updateGlobalTeamsDropdown();
+    updateGroupTeamCheckboxes();
+    updateAdminGroupDropdown();
+  }
+
+  function updateGroupTeamCheckboxes() {
+    let container = document.getElementById('groupTeamsCheckboxes');
+    if(!container) return;
+    container.innerHTML = '';
+    let allTeamsMap = new Map();
+    [...testTeams, ...odiTeams, ...t20Teams].forEach(t => allTeamsMap.set(t.name, t.name));
+
+    allTeamsMap.forEach(teamName => {
+      let div = document.createElement('div');
+      div.className = 'checkbox-item';
+      div.innerHTML = `<input type="checkbox" value="${teamName}" class="group-team-chk"> <img class="flag-img" src="${getTeamFlagUrl(teamName)}"> <span>${teamName}</span>`;
+      container.appendChild(div);
+    });
+  }
+
+  function updateGlobalTeamsDropdown() {
+    let formatElem = document.getElementById('globalFormatSelect');
+    if(!formatElem) return;
+    let format = formatElem.value;
+    let t1Select = document.getElementById('globalTeam1Select');
+    let t2Select = document.getElementById('globalTeam2Select');
+    if(!t1Select || !t2Select) return;
+
+    t1Select.innerHTML = '';
+    t2Select.innerHTML = '';
+
+    let teamsList = (format === 'test') ? testTeams : (format === 'odi') ? odiTeams : t20Teams;
+    teamsList.forEach(t => {
+      let opt1 = document.createElement('option');
+      opt1.value = t.name;
+      opt1.textContent = t.name;
+      t1Select.appendChild(opt1);
+
+      let opt2 = document.createElement('option');
+      opt2.value = t.name;
+      opt2.textContent = t.name;
+      t2Select.appendChild(opt2);
+    });
+  }
+
+  function updateAdminGroupDropdown() {
+    let groupSelect = document.getElementById('adminGroupSelect');
+    if(!groupSelect) return;
+    groupSelect.innerHTML = '';
+
+    tournamentGroups.forEach((g, idx) => {
+      let opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = `${g.name} (${g.format.toUpperCase()})`;
+      groupSelect.appendChild(opt);
+    });
+    updateGroupMatchTeamsDropdown();
+  }
+
+  function updateGroupMatchTeamsDropdown() {
+    let groupSelect = document.getElementById('adminGroupSelect');
+    let t1Select = document.getElementById('groupTeam1Select');
+    let t2Select = document.getElementById('groupTeam2Select');
+    if(!groupSelect || !t1Select || !t2Select) return;
+
+    let groupIdx = groupSelect.value;
+    t1Select.innerHTML = '';
+    t2Select.innerHTML = '';
+
+    let targetGroup = tournamentGroups[groupIdx];
+    if(targetGroup && targetGroup.teams) {
+      targetGroup.teams.forEach(t => {
+        let opt1 = document.createElement('option');
+        opt1.value = t.name;
+        opt1.textContent = t.name;
+        t1Select.appendChild(opt1);
+
+        let opt2 = document.createElement('option');
+        opt2.value = t.name;
+        opt2.textContent = t.name;
+        t2Select.appendChild(opt2);
+      });
+    }
+  }
+
+  document.getElementById('globalFormatSelect').addEventListener('change', updateGlobalTeamsDropdown);
+  document.getElementById('adminGroupSelect').addEventListener('change', updateGroupMatchTeamsDropdown);
+
+  document.querySelectorAll('.nav-tabs .tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.nav-tabs .tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById(this.getAttribute('data-target')).classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.sub-tabs-container .sub-tab').forEach(subTab => {
+    subTab.addEventListener('click', function() {
+      let parentContainer = this.parentElement.parentElement;
+      parentContainer.querySelectorAll('.sub-tab').forEach(st => st.classList.remove('active'));
+      parentContainer.querySelectorAll('.sub-content').forEach(sc => sc.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById(this.getAttribute('data-sub')).classList.add('active');
+    });
+  });
+
+  const adminPanel = document.getElementById('adminPanel');
+  const appContainer = document.getElementById('appContainer');
+  document.getElementById('adminToggleBtn').addEventListener('click', () => {
+    adminPanel.classList.toggle('active');
+    appContainer.classList.toggle('admin-active');
+  });
+
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    if (document.getElementById('adminPwd').value === 'admin') {
+      document.getElementById('loginSec').style.display = 'none';
+      document.getElementById('controlSec').style.display = 'block';
+    } else {
+      alert('Incorrect Password! Use "admin"');
+    }
+  });
+
+  document.getElementById('createGroupBtn').addEventListener('click', () => {
+    let format = document.getElementById('groupFormatSelect').value;
+    let groupName = document.getElementById('groupNameInput').value.trim();
+    let checkedTeamNames = [];
+    document.querySelectorAll('.group-team-chk:checked').forEach(chk => {
+      checkedTeamNames.push(chk.value);
+    });
+
+    if(!groupName || checkedTeamNames.length === 0) {
+      alert('Please enter group name and select at least one team!');
+      return;
+    }
+
+    let isTest = (format === 'test');
+    let groupTeamsFormatted = checkedTeamNames.map(tName => {
+      if(isTest) return { name: tName, pld: 0, w: 0, l: 0, d: 0, pts: 0 };
+      else return { name: tName, pld: 0, w: 0, l: 0, t: 0, nr: 0, pts: 0, nrr: 0.000 };
+    });
+
+    tournamentGroups.push({ format, name: groupName, teams: groupTeamsFormatted });
+    document.getElementById('groupNameInput').value = '';
+    document.querySelectorAll('.group-team-chk').forEach(chk => chk.checked = false);
+    saveData();
+    renderGroups();
+    updateAdminDropdowns();
+    alert('Group created successfully!');
+  });
+
+  document.getElementById('addMatchBtn').addEventListener('click', () => {
+    let editId = document.getElementById('editMatchId').value;
+    let format = document.getElementById('mFormat').value.trim();
+    let series = document.getElementById('mSeries').value.trim();
+    let t1 = document.getElementById('mTeam1').value.trim();
+    let t2 = document.getElementById('mTeam2').value.trim();
+    if (!format || !series || !t1 || !t2) { alert('Please fill required fields.'); return; }
+    
+    let matchData = {
+      format, series, t1, t2,
+      score1: document.getElementById('mScore1').value.trim(),
+      score2: document.getElementById('mScore2').value.trim(),
+      toss: document.getElementById('mToss').value.trim(),
+      result: document.getElementById('mResult').value.trim(),
+      venue: document.getElementById('mVenue').value.trim(),
+      date: document.getElementById('mDate').value.trim(),
+      time: document.getElementById('mTime').value.trim()
+    };
+
+    if (editId) {
+      let idx = matchesList.findIndex(m => m.id == editId);
+      if (idx !== -1) {
+        matchData.id = Number(editId);
+        matchesList[idx] = matchData;
+      }
+      document.getElementById('editMatchId').value = '';
+      document.getElementById('matchFormTitle').textContent = '📅 2. Add Match Schedule';
+    } else {
+      matchData.id = matchesList.length > 0 ? matchesList[matchesList.length - 1].id + 1 : 1;
+      matchesList.push(matchData);
+    }
+
+    // Clear form inputs
+    document.getElementById('mFormat').value = '';
+    document.getElementById('mSeries').value = '';
+    document.getElementById('mTeam1').value = '';
+    document.getElementById('mTeam2').value = '';
+    document.getElementById('mScore1').value = '';
+    document.getElementById('mScore2').value = '';
+    document.getElementById('mToss').value = '';
+    document.getElementById('mResult').value = '';
+    document.getElementById('mVenue').value = '';
+    document.getElementById('mDate').value = '';
+    document.getElementById('mTime').value = '';
+
+    renderMatches();
+    saveData();
+    alert('Match saved successfully!');
+  });
+
+  window.editMatch = function(id) {
+    let m = matchesList.find(match => match.id === id);
+    if (!m) return;
+    document.getElementById('editMatchId').value = m.id;
+    document.getElementById('matchFormTitle').textContent = '✏️ Edit Match Schedule';
+    document.getElementById('mFormat').value = m.format;
+    document.getElementById('mSeries').value = m.series;
+    document.getElementById('mTeam1').value = m.t1;
+    document.getElementById('mTeam2').value = m.t2;
+    document.getElementById('mScore1').value = m.score1 || '';
+    document.getElementById('mScore2').value = m.score2 || '';
+    document.getElementById('mToss').value = m.toss || '';
+    document.getElementById('mResult').value = m.result || '';
+    document.getElementById('mVenue').value = m.venue || '';
+    document.getElementById('mDate').value = m.date || '';
+    document.getElementById('mTime').value = m.time || '';
+    adminPanel.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  document.getElementById('applyGlobalUpdateBtn').addEventListener('click', () => {
+    let format = document.getElementById('globalFormatSelect').value;
+    let t1Name = document.getElementById('globalTeam1Select').value;
+    let t2Name = document.getElementById('globalTeam2Select').value;
+    let winner = document.getElementById('globalWinnerSelect').value;
+
+    if(t1Name === t2Name) {
+      alert('Please select two different teams!');
+      return;
+    }
+
+    let arr = (format === 'test') ? testTeams : (format === 'odi') ? odiTeams : t20Teams;
+    let t1Obj = arr.find(t => t.name === t1Name);
+    let t2Obj = arr.find(t => t.name === t2Name);
+
+    if(!t1Obj || !t2Obj) return;
+
+    if(format === 'test') {
+      t1Obj.pld += 1;
+      t2Obj.pld += 1;
+      if(winner === 'team1') { t1Obj.w += 1; t1Obj.pts += 12; t2Obj.l += 1; }
+      else if(winner === 'team2') { t2Obj.w += 1; t2Obj.pts += 12; t1Obj.l += 1; }
+      else if(winner === 'draw') { t1Obj.d += 1; t2Obj.d += 1; t1Obj.pts += 4; t2Obj.pts += 4; }
+      else { t1Obj.pts += 4; t2Obj.pts += 4; }
+    } else {
+      t1Obj.pld += 1;
+      t2Obj.pld += 1;
+      if(winner === 'team1') {
+        t1Obj.pts += 2;
+        t1Obj.rating += 2.5;
+        t2Obj.rating -= 2.5;
+      } else if(winner === 'team2') {
+        t2Obj.pts += 2;
+        t2Obj.rating += 2.5;
+        t1Obj.rating -= 2.5;
+      } else {
+        t1Obj.pts += 1;
+        t2Obj.pts += 1;
+      }
+    }
+
+    renderTables();
+    alert('Global rankings updated successfully via ICC formula!');
+  });
+
+  document.getElementById('applyGroupUpdateBtn').addEventListener('click', () => {
+    let groupIdx = document.getElementById('adminGroupSelect').value;
+    let targetGroup = tournamentGroups[groupIdx];
+    if(!targetGroup) { alert('Please select a valid group!'); return; }
+
+    let t1Name = document.getElementById('groupTeam1Select').value;
+    let t2Name = document.getElementById('groupTeam2Select').value;
+    let winner = document.getElementById('groupWinnerSelect').value;
+
+    if(t1Name === t2Name) {
+      alert('Please select two different teams!');
+      return;
+    }
+
+    let isTest = (targetGroup.format === 'test');
+    let t1Obj = targetGroup.teams.find(t => t.name === t1Name);
+    let t2Obj = targetGroup.teams.find(t => t.name === t2Name);
+
+    if(t1Obj && t2Obj) {
+      t1Obj.pld += 1;
+      t2Obj.pld += 1;
+
+      if(isTest) {
+        if(winner === 'team1') { t1Obj.w += 1; t1Obj.pts += 12; t2Obj.l += 1; }
+        else if(winner === 'team2') { t2Obj.w += 1; t2Obj.pts += 12; t1Obj.l += 1; }
+        else if(winner === 'draw') { t1Obj.d += 1; t2Obj.d += 1; t1Obj.pts += 4; t2Obj.pts += 4; }
+        else { t1Obj.pts += 4; t2Obj.pts += 4; }
+      } else {
+        if(winner === 'team1') { t1Obj.w += 1; t1Obj.pts += 2; t2Obj.l += 1; }
+        else if(winner === 'team2') { t2Obj.w += 1; t2Obj.pts += 2; t1Obj.l += 1; }
+        else if(winner === 'draw') { t1Obj.t += 1; t2Obj.t += 1; t1Obj.pts += 1; t2Obj.pts += 1; }
+        else if(winner === 'nr') { t1Obj.nr += 1; t2Obj.nr += 1; t1Obj.pts += 1; t2Obj.pts += 1; }
+      }
+    }
+
+    saveData();
+    renderGroups();
+    alert('Custom Group table updated successfully!');
+  });
+
+  window.deleteMatch = function(id) {
+    let index = matchesList.findIndex(m => m.id === id);
+    if (index !== -1) {
+      matchesList.splice(index, 1);
+      renderMatches();
+      saveData();
+    }
+  }
+
+  renderTables();
+  renderMatches();
+</script>
+
+</body>
+</html>
